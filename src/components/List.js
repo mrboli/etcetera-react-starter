@@ -12,29 +12,38 @@ class List extends Component {
       ]
     };
 
+    this.inputRefs = []; // Used to focus inputs on delete
+
     this.addListItem = this.addListItem.bind(this);
     this.updateListItem = this.updateListItem.bind(this);
     this.checkRemoveItem = this.checkRemoveItem.bind(this);
   }
 
   addListItem () {
-    this.setState({ listItems: [...this.state.listItems, ""] });
+    const listItems = [...this.state.listItems, ""];
+    this.setState({ listItems });
   }
 
   updateListItem (index, value) {
-    const newList = this.state.listItems;
-    newList[index] = value;
-    this.setState({ listItems: newList });
+    const listItems = this.state.listItems;
+    listItems[index] = value;
+    this.setState({ listItems });
   }
 
   checkRemoveItem (index) {
-    console.log('checking remove', index, this.state.listItems[index]);
-    if (this.state.listItems[index] === "") {
-      console.log('empty!')
-      const newList = this.state.listItems;
-      newList.splice(index, 1);
-      console.log('newlist', newList);
-      this.setState({ listItems: newList });
+    const isntLastInput = this.state.listItems.length > 1;
+    const currentInputEmpty = this.state.listItems[index] === "";
+    if (isntLastInput && currentInputEmpty) {
+      const listItems  = this.state.listItems;
+      listItems.splice(index, 1);
+      this.setState({ listItems });
+
+      const prev = index - 1;
+      // Use a 100ms delay to focus, or else previous input will delete last character
+      // Note: Cannot use state to prevent character deletion instead because
+      // The previous input doesn't pick up keydown event in this situation (tested)
+      if (this.inputRefs[prev]) setTimeout(this.inputRefs[prev].focus, 100);
+      // TODO: Use redux for more reliable focus state/timing
     }
   }
 
@@ -45,11 +54,13 @@ class List extends Component {
           return (
             <ListInput
               key={i}
+              ref={input => this.inputRefs[i] = input}
               index={i}
               item={item}
               addItem={this.addListItem}
               updateListItem={this.updateListItem}
               checkRemoveItem={this.checkRemoveItem}
+              unsetBackspace={this.unsetBackspace}
             />
           )
         })}

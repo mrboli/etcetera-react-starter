@@ -5,15 +5,19 @@ class ListInput extends Component {
   constructor (props) {
     super(props);
 
+    this.focus = this.focus.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
+  }
+
+  focus () {
+    this.textInput.focus();
   }
 
   handleKeyPress (e) {
     // e.key = "Backspace" / "Enter"
     switch (e.key) {
       case "Backspace":
-        console.log('backspace');
-        // If input black, remove this element
+        // If input blank, remove this element
         this.props.checkRemoveItem(this.props.index);
         break;
       case "Enter":
@@ -21,6 +25,7 @@ class ListInput extends Component {
         this.props.addItem(); 
         break;
       default:
+        break;
     }
   }
 
@@ -28,9 +33,10 @@ class ListInput extends Component {
     return (
       <li>
         <Input
+          ref={input => this.textInput = input}
           type="text"
-          onKeyDown={this.handleKeyPress}
           value={this.props.item}
+          onKeyDown={this.handleKeyPress}
           onChange={e => {this.props.updateListItem(this.props.index, e.target.value)}}
           autoFocus
         />
